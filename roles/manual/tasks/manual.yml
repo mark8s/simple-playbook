@@ -1,0 +1,49 @@
+- name: Assure workspace existence
+  file:
+    path: "{{ installation_workspace }}/{{ gcp_install_sh_path }}"
+    state: directory
+
+- name: Set env scripts
+  template:
+    src: env.sh.j2
+    dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/env.sh"
+    mode: '0755'
+
+- name: test
+  shell: |
+   echo "lc_subdomain" {{LC_SUBDOMAIN}}
+  register: say_hi
+
+- debug: var=say_hi.stdout
+
+- name: Set install_package scripts
+  template:
+    src: install_package.sh.j2
+    dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/install_package.sh"
+    mode: '0755'
+
+- name: Set  gcp-images scripts
+  template:
+    src: gcp-images.sh.j2
+    dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/gcp-images.sh"
+    mode: '0755'
+
+- name: Set manual scripts
+  template:
+    src: manual.sh.j2
+    dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/manual.sh"
+    mode: '0755'
+
+- name: Set install scripts
+  template:
+    src: install.sh.j2
+    dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/install.sh"
+    mode: '0755'
+
+- name: Exec manual
+  shell: |
+    sh manual.sh
+  args:
+    chdir: "{{ installation_workspace }}/{{ gcp_install_sh_path }}"
+    executable: /bin/bash
+

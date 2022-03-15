@@ -1,0 +1,26 @@
+# Host in Global Control Plane
+[gcp]
+#dns.gcp    ansible_host=10.10.13.182 public_ip=10.10.13.182 ansible_user=root ansible_password=0
+#gitlab.gcp ansible_host=10.10.13.181 public_ip=10.10.13.181 ansible_user=root ansible_password=0
+#main.gcp   ansible_host=10.10.13.180 public_ip=10.10.13.180 ansible_user=root ansible_password=0
+127.0.0.1 ansible_connection=local
+
+[all:vars]
+LC_EIP=10.10.11.35
+LC_SUBDOMAIN=haier.cloudtogo.local
+LC_MYSQL_SERVER=10.10.11.35
+LC_MYSQL_ROOT_PASSWORD=ZcHgpZuOVMjeMVb
+LC_DNS_RESOLVER=10.10.11.37
+LC_API_INFRA_EIP=10.10.11.35
+LC_GIT_EIP=10.10.11.36
+LC_INFRA_IP=10.10.11.35
+LC_JWT=kJyJiJmUJZTAgmc
+LC_GIT_TOKEN=xPTjzXncPozWtBPMobyw
+LC_REGISTRY=harbor.cloud2go.cn
+LC_LOCALHOST_IP=10.10.11.35
+
+gcp_install_sh_path=gcp
+
+installation_workspace=/root/mark
+
+

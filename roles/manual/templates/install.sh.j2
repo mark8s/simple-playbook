@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+. "$(pwd)/gcp-images.sh"
+. "$(pwd)/install_package.sh"
+. "$(pwd)/env.sh"
+
+[ "${SUBDOMAIN}" == "" ] && echo "env SUBDOMAIN is empty" && exit 2
+[ "${LOCALHOST_IP}" == "" ] && echo "env LOCALHOST_IP is empty" && exit 2
+[ "${JWT}" == "" ] && echo "env JWT is empty" && exit 2
+[ "${MYSQL_SERVER}" == "" ] && echo "env MYSQL_SERVER is empty" && exit 2
+[ "${MYSQL_ROOT_PASSWORD}" == "" ] && echo "env MYSQL_ROOT_PASSWORD is empty" && exit 2
+[ "${DNS_RESOLVER}" == "" ] && echo "env DNS_RESOLVER is empty" && exit 2
+[ "${EIP}" == "" ] && echo "env EIP is empty" && exit 2
+[ "${INFRA_EIP}" == "" ] && echo "env EIP is empty" && exit 2
+[ "${GITLAB_TOKEN}" == "" ] && echo "env GIT_TOKEN is empty" && exit 2
+[ "${LC_REGISTRY}" == "" ] && echo "env LC_REGISTRY is empty" && exit 2
+a
+# Clear data directory
+export MAIN_DATA_DIR=/var/lib/cloudtogo
+[ -d "${MAIN_DATA_DIR}" ] && rm -rf "${MAIN_DATA_DIR}/*"
+
+export MONGO_DIR=/var/lib/cloudtogo/
+[ -d "${MONGO_DIR}" ] && rm -rf "${MONGO_DIR}/*"
+cp -r mongodb /var/lib/cloudtogo/
+
+InstallPackages make
+
+sed -i "s/10.10.13.160/${LOCALHOST_IP}/g" conf.d/default.conf
+
+# Create directory for postgres
+export POSTGRES_VOLUME=/var/lib/cloudtogo/postgres
+[ ! -d ${POSTGRES_VOLUME} ] && mkdir -p ${POSTGRES_VOLUME}
+export MONTTORING_VOLUME=/etc/monitoring
+[ ! -d ${MONTTORING_VOLUME} ] && mkdir -p ${MONTTORING_VOLUME}
+cp promxy.yaml ${MONTTORING_VOLUME}/config.yaml
+
+docker-compose up -d
