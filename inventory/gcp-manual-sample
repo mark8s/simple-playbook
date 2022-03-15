@@ -19,8 +19,11 @@ LC_GIT_TOKEN=xPTjzXncPozWtBPMobyw
 LC_REGISTRY=harbor.cloud2go.cn
 LC_LOCALHOST_IP=10.10.11.35
 
-gcp_install_sh_path=gcp
+gcp_install_sh_path=infra.pack.res
 
-installation_workspace=/root/mark
+installation_workspace=/root/.ctg
 
+local_conf_dir={{ playbook_dir }}/config
+local_binary_dir={{ playbook_dir }}/bin
+local_image_conf_dir={{ playbook_dir }}/image
 

@@ -1,3 +1,10 @@
+- name: test
+  shell: |
+   echo "playbook_dir" {{ playbook_dir }}
+  register: say_hi
+
+- debug: var=say_hi.stdout
+
 - name: Assure workspace existence
   file:
     path: "{{ installation_workspace }}/{{ gcp_install_sh_path }}"
@@ -8,13 +15,6 @@
     src: env.sh.j2
     dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/env.sh"
     mode: '0755'
-
-- name: test
-  shell: |
-   echo "lc_subdomain" {{LC_SUBDOMAIN}}
-  register: say_hi
-
-- debug: var=say_hi.stdout
 
 - name: Set install_package scripts
   template:
@@ -39,6 +39,26 @@
     src: install.sh.j2
     dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/install.sh"
     mode: '0755'
+
+- name: Assure conf.d existence
+  file:
+    path: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/conf.d"
+    state: directory
+
+- name: Set default conf
+  template:
+    src: default.conf.j2
+    dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/conf.d/default.conf"
+
+- name: Set promxy
+  copy:
+    src: "{{ local_conf_dir }}/promxy.yaml"
+    dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/promxy.yaml"
+
+- name: Set Docker Compose
+  copy:
+    src: "{{ local_conf_dir }}/docker-compose.yml"
+    dest: "{{ installation_workspace }}/{{ gcp_install_sh_path }}/docker-compose.yml"
 
 - name: Exec manual
   shell: |

@@ -1,0 +1,1019 @@
+version: '3.0'
+services:
+  web:
+    container_name: web
+    restart: always
+    ports:
+      - '9443:443/tcp'
+      - '9080:80/tcp'
+    environment:
+      - domain=${DOMAIN}
+      - domain_suffix=.testmodelapp.${DOMAIN}
+      - jwt_token_key=${JWT_TOKEN_KEY}
+      - private_cloud=${PRIVATE_CLOUD}
+      - CLOUDNAME=${CLOUDNAME}
+      - COMPANYNAME=${COMPANYNAME}
+    image: '${REPOSITORY}/cloudos/web:haier_20210811_hiddenApiBtn'
+  review:
+    container_name: review
+    restart: always
+    ports:
+      - '8037:8037/tcp'
+    environment:
+      - env_mysql_password=${MYSQL_ROOT_PASSWORD}
+      - haier_daocloud_failurethreshold=3
+      - env_project_residenceHour=72
+      - user_service_name=${INFRA_SERVER_HOST}
+      - haier_testplat_username=${TESTPLAT_USERNAME}
+      - env_redirect_protocol=https
+      - env_schedule_getdeploystatus=0 0/2 * * * ?
+      - env_schedule_recycleresource=30 0 0/1 * * ?
+      - composer_service_name=${INFRA_SERVER_HOST}
+      - env_profile_encrypt=1
+      - haier_daocloud_namespace=${DAOCLOUD_NAMESPACE}
+      - haier_daocloud_secret=${DAOCLOUD_SECRET}
+      - haier_fusion_domain=hd-oss.${DOMAIN}
+      - env_schedule_resendmessage=15 0/1 * * * ?
+      - haier_testplat_secret=${TESTPLAT_SECRET}
+      - haier_cosmoplat_url=imtservice.${DOMAIN}
+      - env_snowId_datacenterId=17
+      - haier_daocloud_domain=.qingdao.${DOMAIN}
+      - haier_fusion_sk=${FUSION_SK}
+      - haier_testplat_password=${TESTPLAT_PASSWORD}
+      - 'extend_composer_service_name=${INFRA_SERVER_HOST}:8084'
+      - haier_fusion_region=${FUSION_REGION}
+      - env_testplat_username=${ENV_TESTPLAT_USERNAME}
+      - haier_fusion_ak=${FUSION_AK}
+      - haier_cosmoplat_secretkey=${COSMOPLAT_SECRETKEY}
+      - 'codepane_service_name=${INFRA_SERVER_HOST}:8010'
+      - env_snowId_workerId=23
+      - 'haier_testplat_url=${TESTPLAT_URL}'
+      - haier_daocloud_username=${DAOCLOUD_USERNAME}
+      - env_project_maxdeploytime=16
+      - env_mysql_user=root
+      - haier_daocloud_successthreshold=1
+      - 'calculate_service_name=${INFRA_SERVER_HOST}:8038'
+      - haier_cosmoplat_secretvi=${COSMOPLAT_SECRETVI}
+      - haier_daocloud_initialdelayseconds=60
+      - mart_service_name=${INFRA_SERVER_HOST}
+      - haier_daocloud_defaultstorageclassname=${DAOCLOUD_DEFAULTSTORAGECLASSNAME}
+      - env_mysql_server=${INFRA_SERVER_HOST}
+      - haier_fusion_password=${FUSION_PASSWORD}
+      - env_schedule_switch=1
+      - haier_daocloud_defaultstoragesize=${DAOCLOUD_DEFAULTSTORAGESIZE}
+      - 'haier_daocloud_url=https://console-qingdao.${DOMAIN}'
+      - haier_daocloud_defaultaccessmodes=ReadWriteOnce
+      - haier_fusion_urlprifix=https
+      - haier_fusion_bucket=${FUSION_BUCKET}
+      - env_project_removeUser=${REMOVE_USER}
+      - env_project_maxuploadsize=5000MB
+      - 'haier_user_url=http://uuc.${DOMAIN}/'
+      - factory_service_name=${INFRA_SERVER_HOST}
+      - haier_daocloud_password=${DAOCLOUD_PASSWORD}
+      - env_schedule_cleanfusiondoc=45 0 4 * * ?
+      - env_testplat_password=${ENV_TESTPLAT_PASSWORD}
+      - haier_fusion_username=${FUSION_USERNAME}
+      - 'env_registry_host=${DC_REGISTRY_HOST}:5001'
+    image: '${REPOSITORY}/haier/review:RC1.1.1.for_haier.1'
+  mart:
+    container_name: mart
+    restart: always
+    ports:
+      - '8002:8002/tcp'
+    environment:
+      - self_service_name=${INFRA_SERVER_HOST}
+      - domain_service_name=${INFRA_SERVER_HOST}
+      - app_epay_open=0
+      - spring_rabbitmq_host=${INFRA_SERVER_HOST}
+      - app_quota=1000000
+      - spring_rabbitmq_username=${ENV_RABBITMQ_USER}
+      - orca_service_name=${INFRA_SERVER_HOST}
+      - composer_service_name=${INFRA_SERVER_HOST}
+      - 'app_callback=http://mart.${DOMAIN}/p/apps.html'
+      - 'app_notifyurl=http://sso.${DOMAIN}/api/mart/order/wxPayCallBack'
+      - epay_service_name=${INFRA_SERVER_HOST}
+      - spring_rabbitmq_password=${ENV_RABBITMQ_PASSWORD}
+      - env_mysql_password=${MYSQL_ROOT_PASSWORD}
+      - 'app_detailurl=http://mart.${DOMAIN}/app/detail.html?appId=%s&appVersion=%s'
+      - user_service_name=${INFRA_SERVER_HOST}
+      - env_mysql_server=${INFRA_SERVER_HOST}
+      - app_audit_deploy=false
+      - volume_service_name=${INFRA_SERVER_HOST}
+      - env_mysql_user=root
+      - spring_rabbitmq_port=${ENV_RABBITMQ_PORT}
+    image: '${REPOSITORY}/haier/mart:RC4.26.1-1'
+  registry-agent:
+    container_name: registry-agent
+    restart: always
+    ports:
+      - '8021:8021/tcp'
+    network_mode: host
+    environment:
+      - mysql_username=${ENV_MYSQL_USER}
+      - mysql_password=${ENV_MYSQL_PASSWORD}
+      - mysql_dbName=service_registry
+      - mysql_host=${MYSQL_SERVER}
+      - mysql_port=3306
+    image: '${REPOSITORY}/haier/registry-agent:RC4.27.3'
+  test-server-mq:
+    container_name: server-test-mq
+    restart: always
+    environment:
+      - mq_virtual_host=/
+      - 'test_run_host=http://${INFRA_SERVER_HOST}:18080'
+      - 'composer_host=http://${INFRA_SERVER_HOST}'
+      - mysql_charset=utf8mb4
+      - 'pipeline_host=http://${INFRA_SERVER_HOST}:8882'
+      - mysql_host=${MYSQL_SERVER}
+      - test_proxy_host=${CLUSTER_MASTER_HOST}
+      - mysql_port=${ENV_MYSQL_PORT}
+      - mq_host=${INFRA_SERVER_HOST}
+      - mysql_pwd=${ENV_MYSQL_PASSWORD}
+      - mq_password=${ENV_MYSQL_PASSWORD}
+      - 'test_host=http://${INFRA_SERVER_HOST}:8026'
+      - mq_port=${ENV_RABBITMQ_PORT}
+      - mysql_user=${ENV_MYSQL_USER}
+      - LOG_LEVEL=DEBUG
+      - mysql_db=service_test
+      - test_proxy_port=18888
+      - 'turtle_host=http://${INFRA_SERVER_HOST}:16020'
+      - mq_user=${ENV_RABBITMQ_USER}
+    image: '${REPOSITORY}/test-server/test-server-mq:haier_rollback.2.4'
+  composer:
+    container_name: composer
+    restart: always
+    network_mode: host
+    environment:
+      - dbhost=${INFRA_SERVER_HOST}
+      - token_key=${JWT_TOKEN_KEY}
+      - 'api_load_mart=http://${INFRA_SERVER_HOST}:8037/api/getWarehouseTools'
+      - 'api_load_factory=http://${INFRA_SERVER_HOST}:8003/composer/components'
+      - 'api_biz_blueprint=http://${INFRA_SERVER_HOST}:8003/composer/blueprint'
+      - 'api_path_map=http://${INFRA_SERVER_HOST}:7001/mesh/service/path/mappings'
+      - 'api_path_status=http://${CLUSTER_MASTER_HOST}:30235/graph'
+    image: '${REPOSITORY}/cloud2go/composer:haier0416'
+  test-api-manage:
+    container_name: server-test-api-manage
+    restart: always
+    ports:
+      - '8035:8035/tcp'
+    environment:
+      - mysql_pwd=${ENV_MYSQL_PASSWORD}
+      - mysql_db=service_test
+      - LOG_LEVEL=ERROR
+      - mysql_port=${ENV_MYSQL_PORT}
+      - mysql_charset=utf8mb4
+      - mysql_host=${MYSQL_SERVER}
+      - mysql_user=${ENV_MYSQL_USER}
+    image: '${REPOSITORY}/test-server/test-api-manage:haier_rollback.2.0'
+  test-server-client:
+    container_name: server-test-client
+    restart: always
+    ports:
+      - '18080:18080/tcp'
+    environment:
+      - mysql_user=root
+      - mq_virtual_host=/
+      - mq_password=${ENV_MYSQL_PASSWORD}
+      - mysql_db=service_test
+      - mq_user=${ENV_RABBITMQ_USER}
+      - LOG_LEVEL=ERROR
+      - timeout=30
+      - mysql_port=${ENV_MYSQL_PORT}
+      - test_proxy_host=${CLUSTER_MASTER_HOST}
+      - mq_host=${INFRA_SERVER_HOST}
+      - mysql_charset=utf8mb4
+      - mysql_host=${MYSQL_SERVER}
+      - 'test_run_host=http://${INFRA_SERVER_HOST}:18080'
+      - test_proxy_port=18888
+      - 'pipeline_host=http://${INFRA_SERVER_HOST}:8882'
+      - 'test_host=http://${INFRA_SERVER_HOST}:8026'
+      - mysql_pwd=${ENV_MYSQL_PASSWORD}
+      - mq_port=${ENV_RABBITMQ_PORT}
+    image: '${REPOSITORY}/test-server/test-server-client:haier_rollback.2.7'
+  openresty-haier:
+    container_name: openresty
+    restart: always
+    ports:
+      - '443:443/tcp'
+      - '80:80/tcp'
+    environment:
+      - private_cloud=true
+      - extend_apigateway_service_port=32823
+      - extend_apigateway_service_name=${INFRA_SERVER_HOST}
+      - registry_agent_service_name=${INFRA_SERVER_HOST}
+      - 'REVIEW_SERVICE_HOST=${INFRA_SERVER_HOST}:8037'
+      - weixin_service_name=${INFRA_SERVER_HOST}
+      - extend_webx_service_name=${INFRA_SERVER_HOST}
+      - doc_service_name=${INFRA_SERVER_HOST}
+      - 'IDE_WORKSPACE_HOST=${CLUSTER_MASTER_HOST}:30962'
+      - orca_agent_service_name=${INFRA_SERVER_HOST}
+      - 'IDE_MANAGER_SERVICE_HOST=${INFRA_SERVER_HOST}:10002'
+      - factory_service_name=${INFRA_SERVER_HOST}
+      - domain_suffix=.${DOMAIN}
+      - extend_composer_service_name=${INFRA_SERVER_HOST}
+      - mis_service_name=${INFRA_SERVER_HOST}
+      - mail_service_name=${INFRA_SERVER_HOST}
+      - volume_service_name=${INFRA_SERVER_HOST}
+      - 'SCM_MANAGER_SERVICE_HOST=${INFRA_SERVER_HOST}:10001'
+      - pipeline_service_name=${INFRA_SERVER_HOST}
+      - mart_service_name=${INFRA_SERVER_HOST}
+      - test_service_name=${INFRA_SERVER_HOST}
+      - monitor_service_name=${INFRA_SERVER_HOST}
+      - course_service_name=${INFRA_SERVER_HOST}
+      - user_service_name=${INFRA_SERVER_HOST}
+      - use_https=false
+      - 'CODEPANE_SERVICE_HOST=${INFRA_SERVER_HOST}:8042'
+      - pinyin_service_name=${INFRA_SERVER_HOST}
+      - notify_service_name=${INFRA_SERVER_HOST}
+      - extend_fe_support_service_name=${INFRA_SERVER_HOST}
+      - jwt_token_key=${JWT_TOKEN_KEY}
+      - code_service_name=${INFRA_SERVER_HOST}
+      - jwt_secret=${JWT}
+      - composer_agent_service_name=${INFRA_SERVER_HOST}
+      - domain=${DOMAIN}
+      - sys_config_service_name=${INFRA_SERVER_HOST}
+      - extend_fe_support_service_port=8800
+      - mesh_agent_service_name=${INFRA_SERVER_HOST}
+      - che_service_name=${INFRA_SERVER_HOST}
+      - epay_service_name=${INFRA_SERVER_HOST}
+      - 'script_url=http://${INFRA_SERVER_HOST}:8030'
+      - CLOUDNAME=CloudOS
+      - sms_service_name=${INFRA_SERVER_HOST}
+      - 'WEB_SERVICE_HOST=${INFRA_SERVER_HOST}:9080'
+      - ide_service_name=${INFRA_SERVER_HOST}
+      - show_notice=false
+    image: '${REPOSITORY}/haier/openresty:RC4.24.0.alpha.2.withoutsso.3'
+  user:
+    container_name: user
+    restart: always
+    ports:
+      - '8001:8001/tcp'
+    environment:
+      - weixin_public_appid=${weixin_public_appid}
+      - spring_ldap_username=${ldap_username}
+      - validCode_expireTime=1800000
+      - jira_admin_username=hertz
+      - spring_data_mongodb_host=${INFRA_SERVER_HOST}
+      - weixin_public_secret=${weixin_public_secret}
+      - ldap_domain=${ldap_domain}
+      - spring_redis_host=${INFRA_SERVER_HOST}
+      - spring_redis_password=${ENV_REDIS_PASSWORD}
+      - env_mysql_user=${ENV_MYSQL_USER}
+      - spring_rabbitmq_host=${INFRA_SERVER_HOST}
+      - github_clientSecret=${github_clientSecret}
+      - 'github_apiUrl=https://api.github.com'
+      - env_mysql_server=${INFRA_SERVER_HOST}
+      - 'github_oauthUrl=https://github.com/login/oauth'
+      - validCode_length=6
+      - jira_server_port=80
+      - 'weixin_open=https://api.weixin.qq.com'
+      - haier_usercenter_client_id=modelhub
+      - spring_rabbitmq_password=${ENV_RABBITMQ_PASSWORD}
+      - ldap_model_user_accountKey=${ldap_model_user_accountKey}
+      - env_mysql_password=${MYSQL_ROOT_PASSWORD}
+      - email_service_name=${INFRA_SERVER_HOST}
+      - spring_ldap_password=${ldap_password}
+      - ldap_model_user_group=${ldap_model_user_group}
+      - login_type=DB
+      - jira_admin_password=${JIRA_ADMIN_PASSWORD}
+      - validCode_type=1
+      - sms_service_name=${INFRA_SERVER_HOST}
+      - 'haier_usercenter_host=https://uuc.${DOMAIN}'
+      - 'sso_login_url=http://sso.${DOMAIN}?invite=%s'
+      - weixin_appid=${weixin_appid}
+      - weixin_grant_type=authorization_code
+      - jira_server_host=""
+      - weixin_secret=${weixin_secret}
+      - spring_ldap_base=${ldap_base}
+      - haier_usercenter_client_secret=${USERCENTER_CLIENT_SECRET}
+      - spring_rabbitmq_port=${ENV_RABBITMQ_PORT}
+      - spring_ldap_urls=${ldap_urls}
+      - github_clientId=${github_clientId}
+      - github_emailSuffix=${github_emailSuffix}
+      - spring_rabbitmq_username=${ENV_RABBITMQ_USER}
+    image: '${REPOSITORY}/cloudos/user:haier_combine_vscode_1114'
+  #ide:
+  #  container_name: ide
+  #  restart: always
+  #  ports:
+  #    - '8010:8010/tcp'
+  #  environment:
+  #    - 'ORCA_CLIENT=http://${INFRA_SERVER_HOST}:7001/'
+  #    - MYSQL_USER=${ENV_MYSQL_USER}
+  #    - 'FACTORY_CLIENT=http://${INFRA_SERVER_HOST}:8003/'
+  #    - MYSQL_PASSWORD=${ENV_MYSQL_PASSWORD}
+  #    - DISTRIBUTION=
+  ##    - MYSQL_HOST=${MYSQL_SERVER}
+  #    - MYSQL_SCHMEA=service_ide
+  #    - 'COMPOSER_CLIENT=http://${INFRA_SERVER_HOST}:7002/'
+  #    - RABBITMQ_HOST=${INFRA_SERVER_HOST}
+  #    - RABBITMQ_PWD=${ENV_MYSQL_PASSWORD}
+  #    - MYSQL_PORT=${ENV_MYSQL_PORT}
+  #    - 'CHE_CLIENT=http://${INFRA_SERVER_HOST}:8080/'
+  #    - DOMAIN_SUFFIX=.testmodelappimm.${DOMAIN}
+  #    - RABBITMQ_USER=${ENV_RABBITMQ_USER}
+  #  image: '${REPOSITORY}/cloudtogo/ide:4.21'
+  epay:
+    container_name: epay
+    restart: always
+    ports:
+      - '8005:8005/tcp'
+    environment:
+      - epay_wx_qrcode_appid=${epay_wx_qrcode_appid}
+      - 'epay_wx_qrcode_notifyUrl=http://sso.${DOMAIN}/api/epay/wx/notify'
+      - epay_wx_qrcode_mchId=${epay_wx_qrcode_mchId}
+      - epay_wx_qrcode_deviceInfo=WEB
+      - epay_wx_qrcode_token=${epay_wx_qrcode_token}
+      - epay_pay_test=1
+      - 'epay_wx_pay_unifiedorder=https://api.mch.weixin.qq.com/pay/unifiedorder'
+      - env_mysql_server=${INFRA_SERVER_HOST}
+      - env_mysql_user=${ENV_MYSQL_USER}
+      - epay_wx_qrcode_tradeType=NATIVE
+      - env_mysql_password=${MYSQL_ROOT_PASSWORD}
+    image: '${REPOSITORY}/cloudtogo/epay:4.21_fastjson'
+  factory:
+    container_name: factory
+    restart: always
+    ports:
+      - '8003:8003/tcp'
+    environment:
+      - epay_service_name=${INFRA_SERVER_HOST}
+      - codepane_service_name=${INFRA_SERVER_HOST}
+      - 'factory_pipeline_agent_deploy=http://${INFRA_SERVER_HOST}:8034/run/hook'
+      - factory_base_domain_suffix=.testmodelapp.${DOMAIN}
+      - factory_instance_count=1000000
+      - env_mysql_user=${ENV_MYSQL_USER}
+      - domain_service_name=${INFRA_SERVER_HOST}
+      - docReport_service_name=${INFRA_SERVER_HOST}
+      - 'factory_pipeline_agent_build=http://${INFRA_SERVER_HOST}:8031/run/hook'
+      - 'factory_base_url=http://sso.${DOMAIN}'
+      - spring_rabbitmq_port=${ENV_RABBITMQ_PORT}
+      - code_service_name=${INFRA_SERVER_HOST}
+      - env_mysql_server=${INFRA_SERVER_HOST}
+      - volume_service_name=${INFRA_SERVER_HOST}
+      - email_service_name=${INFRA_SERVER_HOST}
+      - env_mysql_password=${MYSQL_ROOT_PASSWORD}
+      - code_service_domain=code.${DOMAIN}
+      - 'doc_server_url=http://webserver.api.${DOMAIN}'
+      - 'factory_base_email_url=http://factory.${DOMAIN}'
+      - 'mart_app_add_url=http://sso.${DOMAIN}/api/mart/app/add'
+      - spring_rabbitmq_host=${INFRA_SERVER_HOST}
+      - git2run_service_name=${INFRA_SERVER_HOST}
+      - cloudos.gitlab.host=${INFRA_SERVER_HOST}
+      - composer_service_name=${INFRA_SERVER_HOST}
+      - mart_service_name=${INFRA_SERVER_HOST}
+      - 'cloudos_scm_manager_service_url=${INFRA_SERVER_HOST}:10001'
+      - spring_rabbitmq_password=${ENV_RABBITMQ_PASSWORD}
+      - crontab_service_name=${INFRA_SERVER_HOST}
+      - ide_service_name=${INFRA_SERVER_HOST}
+      - user_service_name=${INFRA_SERVER_HOST}
+      - orca_service_name=${INFRA_SERVER_HOST}
+      - spring_rabbitmq_username=${ENV_RABBITMQ_USER}
+    image: '${REPOSITORY}/cloudos/factory:Haier_combine_vscode_1116'
+  orchor:
+    container_name: orchor
+    restart: always
+    network_mode: host
+    image: '${REPOSITORY}/official/orchor:RC4.23.2'
+    command: ["-meta=${INFRA_SERVER_HOST}:16012", "-bp=${INFRA_SERVER_HOST}:8084", "-dns=${DNS_RESOLVER}:1401", "-dnsi=${DNS_RESOLVER}:1401", "-domain=${DOMAIN}", "-api=117.78.43.167,192.168.4.15:3200", "-centralizedports=true", "-enablevolumeconfig=true", "-domain2=svc.cluster.local", "-efk=true", "-mongo=admin:50fb3e88-3991-40d9-9ff3-5a8cf6768363@127.0.0.1:27017/admin"]
+  domain:
+    container_name: domain
+    restart: always
+    ports:
+      - '8014:8014/tcp'
+    environment:
+      - MYSQL_HOST=${MYSQL_SERVER}
+      - MYSQL_USER=${ENV_MYSQL_USER}
+      - MYSQL_PASSWORD=${ENV_MYSQL_PASSWORD}
+      - MYSQL_PORT=${ENV_MYSQL_PORT}
+      - MYSQL_SCHMEA=service_domain
+      - DOMAIN_SUFFIX=.testmodelappimm.${DOMAIN}
+    image: '${REPOSITORY}/cloudtogo/domain:4.21'
+  ide-manager:
+    container_name: ide-manager
+    restart: always
+    ports:
+      - '10002:8080/tcp'
+    environment:
+      - MYSQL_USERNAME=root
+      - SERVER_CONTEXT_PATH=/ide/manager
+      - MONITOR_INTERNAL=600s
+      - AUTH_DATA_SOURCE_TYPE=mysql
+      - MYSQL_HOST=${INFRA_SERVER_HOST}
+      - AUTH_DATA_SOURCE_DATABASE=service_ide_manager_v2
+      - AUTH_DATA_SOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - DOCKER_REGISTRY=${REPOSITORY}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - JWT_TOKEN_EXPIRED_HOURS=168
+      - 'IDE_MANAGER_ADDRESS=${INFRA_SERVER_HOST}:10002'
+      - IDE_LOGIN_URL=/ide/web/user-login
+      - MONITOR_ENABLE=true
+      - AUTH_DATA_SOURCE_HOST=${INFRA_SERVER_HOST}
+      - AUTH_DATA_SOURCE_USERNAME=root
+      - MYSQL_PORT=3306
+      - IDE_AUTH_ENABLE=false
+      - HTTP_DEBUG=1
+      - MYSQL_RAW_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - INGRESS_DOMAIN=ide.${DOMAIN}
+      - 'SCM_HOST=http://${INFRA_SERVER_HOST}:10001'
+      - HIBERNATE_TIME_OUT=30000
+      - MYSQL_DATABASE=service_ide_manager_v2
+      - MONITOR_START_TIME=600s
+      - 'IDE_AUTH_ADDRESS=${INFRA_SERVER_HOST}:10002'
+      - AUTH_DATA_SOURCE_PORT=3306
+      - LOGGING_LEVEL=debug
+      - 'CUBE_HOST=http://${CLUSTER_MASTER_HOST}:31502'
+      - MONITOR_TOKEN=666
+      - IDE_WS_ADDRESS=ide.${DOMAIN}
+      - GIT_CHANGE_PORT_ENABLE=true
+      - SCM_HTTP_DEBUG=1
+    image: '${REPOSITORY}/cloudos/ide-manager:RC4.28.0.alpha13'
+  codepane:
+    container_name: codepane
+    restart: always
+    ports:
+      - '8042:8080/tcp'
+    environment:
+      - 'CLOUDOS_COMPOSER_SERVICE_URL=http://${INFRA_SERVER_HOST}:8084'
+      - 'CLOUDOS_SCM_SERVICE_URL=http://${INFRA_SERVER_HOST}:10001'
+      - SCM_BUILTIN_PROVIDER_ADMIN_USERNAME="${GITLAB_ADMIN_USERNAME}"
+      - SCM_BUILTIN_PROVIDER_GENERATED_USER_DEFAULT_PASSWORD="${GITLAB_DEFAULT_PWD}"
+      - SPRING_RABBITMQ_HOST=${INFRA_SERVER_HOST}
+      - SPRING_RABBITMQ_USERNAME=${ENV_RABBITMQ_USER}
+      - SPRING_RABBITMQ_PORT=${ENV_RABBITMQ_PORT}
+      - SCM_BUILTIN_PROVIDER_ADMIN_PASSWORD=${GTILAB_ADMIN_PASSWORD}
+      - IDE_ADMIN_USERNAME=admin
+      - 'IDE_DOMAIN=http://ide.${DOMAIN}'
+      - SPRING_DATASOURCE_USER="${ENV_MYSQL_USER}"
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - 'SPRING_DATASOURCE_URL=jdbc:mysql://${INFRA_SERVER_HOST}:${ENV_MYSQL_PORT}/service_codepane?useUnicode=true&useSSL=false'
+      - SCM_BUILTIN_PROVIDER_GENERATED_USER_DEFAULT_EMAIL_HOST="${DOMAIN}"
+      - 'CLOUDOS_IDE_SERVICE_URL=http://${INFRA_SERVER_HOST}:10002'
+      - SPRING_RABBITMQ_PASSWORD=${ENV_RABBITMQ_PASS}
+      - SCM_BUILTIN_PROVIDER_DOMAIN=code.${DOMAIN}
+      - IDE_ADMIN_PASSWORD="${IDE_ADMIN_PASSWORD}"
+    image: '${REPOSITORY}/cloudos/codepane:Haier_combine_vscode_1116'
+  #code:
+  #  container_name: code
+  #  restart: always
+  #  ports:
+  #    - '8011:8011/tcp'
+  #  environment:
+  #    - DOMAIN_SUFFIX=.${DOMAIN}
+  #    - MYSQL_USER=root
+  #    - MYSQL_SCHMEA=service_code
+  #    - GIT_TOKEN=xPTjzXncPozWtBPMobyw
+  #    - MYSQL_PASSWORD=${ENV_MYSQL_PASSWORD}
+  #    - DEFAULT_BRANCH=master
+  #    - 'IDE_DOMAIN=http://ide.${DOMAIN}/'
+  #    - MYSQL_HOST=${MYSQL_SERVER}
+  #    - 'GITLIAB_CLIENT=http://${GITLAB_SERVER_HOST}/'
+  #    - GITLAB_SSH_PORT=822
+  #    - 'COMPOSER_CLIENT=http://${INFRA_SERVER_HOST}:8084/'
+  #    - 'COMPOSER_AGENT_CLIENT=http://${INFRA_SERVER_HOST}:7002/'
+  #    - DEFAULT_PWD=CloudToGo1594568
+  #    - 'CHE_CLIENT=http://${INFRA_SERVER_HOST}:8080/'
+  #    - MYSQL_PORT=3306
+  #    - GIT_DOMAIN=code.${DOMAIN}
+  #    - 'IDE_URL=http://${INFRA_SERVER_HOST}:8010/'
+  #  image: '${REPOSITORY}/cloudos/code:RC4.21.alpha.0'
+  integration-application:
+    container_name: integration-application
+    restart: always
+    ports:
+      - '8041:8041/tcp'
+    environment:
+      - spring_rabbitmq_host=${INFRA_SERVER_HOST}
+      - spring_rabbitmq_port=${ENV_RABBITMQ_PORT}
+      - spring_rabbitmq_username=${ENV_RABBITMQ_USER}
+      - spring_rabbitmq_password=${ENV_RABBITMQ_PASS}
+      - cloudos_factory_domain_suffix=.${DOMAIN}
+      - env_mysql_server=${INFRA_SERVER_HOST}
+      - env_mysql_user=${ENV_RABBITMQ_USER}
+      - env_mysql_password=${MYSQL_ROOT_PASSWORD}
+    image: '${REPOSITORY}/cloudtogo/integration-application:RC1.0.2_fastjson'
+  server-test-service:
+    container_name: server-test-service
+    restart: always
+    ports:
+      - '8026:8026/tcp'
+    environment:
+      - 'test_run_host=http://${INFRA_SERVER_HOST}:18080'
+      - mq_user=${ENV_RABBITMQ_USER}
+      - mysql_user=${ENV_MYSQL_PASSWORD}
+      - test_proxy_port=18888
+      - mq_virtual_host=/
+      - mysql_charset=utf8mb4
+      - 'test_host=http://${INFRA_SERVER_HOST}'
+      - mysql_pwd=${ENV_MYSQL_PASSWORD}
+      - mysql_host=${MYSQL_SERVER}
+      - mysql_db=service_test
+      - mq_host=${INFRA_SERVER_HOST}
+      - 'composer_host=http://${INFRA_SERVER_HOST}'
+      - mq_port=${ENV_RABBITMQ_PORT}
+      - LOG_LEVEL=ERROR
+      - mysql_port=${ENV_MYSQL_PORT}
+      - 'pipeline_host=http://${INFRA_SERVER_HOST}:8882'
+      - mq_password=${ENV_MYSQL_PASSWORD}
+      - test_proxy_host=${CLUSTER_MASTER_HOST}
+    image: '${REPOSITORY}/test-server/test-server-test:haier1.15'
+  scm-manager:
+    container_name: scm-manager
+    restart: always
+    ports:
+      - '10001:8080/tcp'
+    environment:
+      - LOGGING_LEVEL=debug
+      - APP_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=${INFRA_SERVER_HOST}
+      - MYSQL_PORT=${ENV_MYSQL_PORT}
+      - MYSQL_DATABASE=service_ide_manager_v2
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - JWT_TOKEN_EXPIRE_HOUR=168
+    image: '${REPOSITORY}/cloudtogo/scm-manager:RC4.28.0.alpha.5'
+  weixin:
+    container_name: weixin
+    restart: always
+    ports:
+      - '8019:8019/tcp'
+    environment:
+      - weixin_app_appid=${weixin_app_appid}
+      - weixin_http_proxy_port=80
+      - 'spring_datasource_url=jdbc:mysql://${INFRA_SERVER_HOST}:3306/service_weixin?useUnicode=true&useSSL=false'
+      - spring_datasource_test_on_borrow=true
+      - weixin_appid=${weixin_appid}
+      - spring_datasource_max_wait=1000
+      - spring_rabbitmq_username=${ENV_RABBITMQ_USER}
+      - spring_rabbitmq_port=${ENV_RABBITMQ_PORT}
+      - spring_redis_database=1
+      - spring_rabbitmq_password=${ENV_RABBITMQ_PASS}
+      - spring_datasource_username=root
+      - 'weixin_open=https://api.weixin.qq.com'
+      - spring_redis_host=${INFRA_SERVER_HOST}
+      - weixin_corp_enabled=false
+      - weixin_app_secret=${weixin_app_secret}
+      - spring_datasource_default_auto_commit=false
+      - weixin_grant_type=authorization_code
+      - weixin_http_proxy_username=""
+      - weixin_corp_app_agent_id=1
+      - spring_redis_password=${ENV_REDIS_PASSWORD}
+      - spring_datasource_test_while_idle=true
+      - spring_datasource_max_active=100
+      - weixin_corp_app_corp_secret=""
+      - spring_datasource_test_on_connect=true
+      - weixin_corp_app_corp_id=""
+      - spring_datasource_min_idle=0
+      - spring_datasource_initial_size=5
+      - user_service_name=${INFRA_SERVER_HOST}
+      - weixin_http_proxy_host=""
+      - weixin_http_proxy_password=""
+      - weixin_secret=${weixin_secret}
+      - spring_datasource_validation_query=select
+      - spring_datasource_password=${MYSQL_ROOT_PASSWORD}
+      - spring_datasource_max_idle=30
+      - weixin_public_appid=${weixin_public_appid}
+      - weixin_public_secret=${weixin_public_secret}
+      - spring_rabbitmq_host=${INFRA_SERVER_HOST}
+      - weixin_public_verifyToken=${weixin_public_verifyToken}
+    image: '${REPOSITORY}/cloudtogo/weixin:RC4.23.2_fastjson'
+  pipeline-mail:
+    container_name: pipeline-mail
+    restart: always
+    ports:
+      - '8886:8080/tcp'
+    environment:
+      - SPRING_MAIL_HOST=${MAIL_SMTP_HOST}
+      - SPRING_MAIL_PASSWORD=${MAIL_SMTP_PASSWORD}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+      - MAIL_POP3_HOST=${MAIL_POP3_HOST}
+      - 'PIPELINE_AGENT_IP=${INFRA_SERVER_HOST}:8881'
+      - SPRING_MAIL_USERNAME=pipeline@cloudtogo.cn
+      - SPRING_MAIL_PORT=${MAIL_SMTP_PORT}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED=true
+      - MAIL_POP3_PASSWORD=${MAIL_POP3_PASSWORD}
+      - INFRA=${INFRA_SERVER_HOST}
+      - SPRING_MAIL_PERSONAL=CloudOS
+      - MAIL_POP3_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_ENABLE=true
+      - MAIL_POP3_USERNAME=${MAIL_POP3_USERNAME}
+      - MAIL_POP3_PORT=110
+      - SPRING_MAIL_DEFAULT-ENCODING=UTF-8
+    image: '${REPOSITORY}/cloudos/pipeline-mail:RC4.24.0_fastjson'
+  monitor:
+    container_name: monitor
+    restart: always
+    ports:
+      - '8023:8023/tcp'
+    environment:
+      - spring_rabbitmq_port=${ENV_RABBITMQ_PORT}
+      - alarm_sms_on-off=off
+      - alarm_ding_robot__on-off=off
+      - alarm_mail_on-off=on
+      - env_mysql_server=${INFRA_SERVER_HOST}
+      - spring_rabbitmq_username=${ENV_RABBITMQ_USER}
+      - spring_rabbitmq_password=${ENV_RABBITMQ_PASS}
+      - alarm_on-off=on
+      - mail_split_char=;
+      - env_mysql_user=root
+      - env_mysql_password=${MYSQL_ROOT_PASSWORD}
+    image: '${REPOSITORY}/cloudtogo/monitor:4.21_fastjson'
+  mis:
+    container_name: mis
+    restart: always
+    ports:
+      - '8018:8018/tcp'
+    environment:
+      - 'regex.queue.user=Cd{29}'
+      - spring_rabbitmq_host=${INFRA_SERVER_HOST}
+      - rabbitmq_management_port=${ENV_RABBITMQ_MANAGEMENT_PORT}
+      - spring_rabbitmq_port=${ENV_RABBITMQ_PORT}
+      - ENV_MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - ENV_MYSQL_SERVER=${INFRA_SERVER_HOST}
+      - spring_rabbitmq_username=${ENV_RABBITMQ_USER}
+      - MYSQL_PORT=${ENV_MYSQL_PORT}
+      - recycle_threshold_clean=4
+      - schedule.inform=false
+      - schedule_recycle=false
+      - recycle_threshold_inform=3
+      - spring_rabbitmq_password=${ENV_RABBITMQ_PASS}
+      - ENV_MYSQL_USER=${ENV_MYSQL_USER}
+      - MYSQL_SCHMEA=service_user
+    image: '${REPOSITORY}/cloudtogo/mis:4.21_fastjson'
+  composer-agent:
+    container_name: composer-agent
+    restart: always
+    ports:
+      - '7002:7002/tcp'
+    environment:
+      - env_mysql_server=${INFRA_SERVER_HOST}
+      - env_mysql_user=${ENV_MYSQL_USER}
+      - env_mysql_password=${MYSQL_ROOT_PASSWORD}
+      - extend_composer_service_name=${INFRA_SERVER_HOST}
+    image: '${REPOSITORY}/cloudtogo/composer-agent:RC4.22.1_1_fastjson'
+  orca-agent:
+    container_name: orca-agent
+    restart: always
+    ports:
+      - '7001:7001/tcp'
+    environment:
+      - ide_service_name=${INFRA_SERVER_HOST}
+      - 'zuul_routes_schedule_query_url=http://${INFRA_SERVER_HOST}:16012'
+      - extend_orca_service_name=${INFRA_SERVER_HOST}
+      - factory_service_name=${INFRA_SERVER_HOST}
+      - mart_service_name=${INFRA_SERVER_HOST}
+    image: '${REPOSITORY}/cloudtogo/orca-agent:RC4.22.1_fastjson'
+  notify:
+    container_name: notify
+    restart: always
+    ports:
+      - '8017:8017/tcp'
+    environment:
+      - extend_orca_service_name=${INFRA_SERVER_HOST}
+      - factory_service_name=${INFRA_SERVER_HOST}
+      - env_mysql_user=${ENV_MYSQL_USER}
+      - spring_rabbitmq_host=${INFRA_SERVER_HOST}
+      - env_mysql_password=${MYSQL_ROOT_PASSWORD}
+      - spring_rabbitmq_port=${ENV_RABBITMQ_PORT}
+      - spring_rabbitmq_username=${ENV_RABBITMQ_USER}
+      - spring_rabbitmq_password=${ENV_RABBITMQ_PASSWORD}
+      - env_mysql_server=${INFRA_SERVER_HOST}
+    image: '${REPOSITORY}/cloudtogo/notify:4.21_fastjson'
+  review-agent:
+    container_name: review-agent
+    restart: always
+    ports:
+      - '8881:8080/tcp'
+    environment:
+      - INFRA=${INFRA_SERVER_HOST}
+      - APP_PROFILES_ACTIVE=env
+      - AMQP_HOST=${INFRA_SERVER_HOST}
+      - AMQP_USER=${ENV_RABBITMQ_USER}
+      - AMQP_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TIME_OUT=10
+      - MYSQL_HOST=${INFRA_SERVER_HOST}
+      - DOMAIN=.${DOMAIN}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    image: '${REPOSITORY}/cloudos/review-agent:RC4.22.31'
+  onshelf-agent:
+    container_name: onshelf-agent
+    restart: always
+    ports:
+      - '8883:8080/tcp'
+    environment:
+      - INFRA=${INFRA_SERVER_HOST}
+      - APP_PROFILES_ACTIVE=env
+      - AMQP_HOST=${INFRA_SERVER_HOST}
+      - AMQP_USER=${ENV_RABBITMQ_USER}
+      - AMQP_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_HOST=${INFRA_SERVER_HOST}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    image: '${REPOSITORY}/cloudos/onshelf-agent:RC4.24.0'
+  manager:
+    container_name: manager
+    restart: always
+    ports:
+      - '8030:8080/tcp'
+    environment:
+      - INFRA=${INFRA_SERVER_HOST}
+      - 'SOCKET_URL=ws://pipeline.${DOMAIN}'
+      - APP_PROFILES_ACTIVE=env
+      - ES_HOST=${INFRA_SERVER_HOST}
+      - MYSQL_HOST=${INFRA_SERVER_HOST}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - 'LOG_URL=ws://${INFRA_SERVER_HOST}:8884'
+      - AMQP_HOST=${INFRA_SERVER_HOST}
+      - AMQP_USER=${ENV_RABBITMQ_USER}
+      - AMQP_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    image: '${REPOSITORY}/cloudos/manager:RC4.24.01'
+
+  build-agent:
+    container_name: build-agent
+    restart: always
+    ports:
+      - '8031:8080/tcp'
+    environment:
+      - INFRA=${INFRA_SERVER_HOST}
+      - 'FACTORY_URL=http://${INFRA_SERVER_HOST}:8003'
+      - 'COMPOSER_AGENT_URL=http://${INFRA_SERVER_HOST}:7002'
+      - 'USER_URL=http://${INFRA_SERVER_HOST}:8001'
+      - APP_PROFILES_ACTIVE=env
+      - AMQP_HOST=${INFRA_SERVER_HOST}
+      - AMQP_USER=${ENV_RABBITMQ_USER}
+      - DEPLOY_URL=pipeline/build
+      - AMQP_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_HOST=${INFRA_SERVER_HOST}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    image: '${REPOSITORY}/cloudos/build-agent:RC4.24.0'
+  deploy-agent:
+    container_name: deploy-agent
+    restart: always
+    ports:
+      - '8034:8080/tcp'
+    environment:
+      - INFRA=${INFRA_SERVER_HOST}
+      - 'FACTORY_URL=http://${INFRA_SERVER_HOST}:8003'
+      - 'COMPOSER_AGENT_URL=http://${INFRA_SERVER_HOST}:7002'
+      - 'USER_URL=http://${INFRA_SERVER_HOST}:8001'
+      - APP_PROFILES_ACTIVE=env
+      - AMQP_HOST=${INFRA_SERVER_HOST}
+      - AMQP_USER=${ENV_RABBITMQ_USER}
+      - DEPLOY_URL=pipeline/deploy
+      - AMQP_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_HOST=${INFRA_SERVER_HOST}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    image: '${REPOSITORY}/cloudos/deploy-agent:RC4.24.0'
+  pipeline-log:
+    container_name: pipeline-log
+    restart: always
+    ports:
+      - '8884:8080/tcp'
+    environment:
+      - APP_PROFILES_ACTIVE=env
+      - ES_HOST=${INFRA_SERVER_HOST}
+      - MONGO_HOST=${INFRA_SERVER_HOST}
+      - 'TURTLE_URL=${INFRA_SERVER_HOST}:16013'
+    image: '${REPOSITORY}/cloudos/pipeline-log:RC4.24.1'
+  test-agent:
+    container_name: test-agent
+    restart: always
+    ports:
+      - '8882:8080/tcp'
+    environment:
+      - INFRA=${INFRA_SERVER_HOST}
+      - APP_PROFILES_ACTIVE=env
+      - AMQP_HOST=${INFRA_SERVER_HOST}
+      - AMQP_USER=${ENV_RABBITMQ_USER}
+      - AMQP_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_HOST=${INFRA_SERVER_HOST}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    image: '${REPOSITORY}/cloudos/test-agent:RC4.24.0'
+  pipeline-web:
+    container_name: pipeline-web
+    restart: always
+    ports:
+      - '8032:8080/tcp'
+      - '8033:8081/tcp'
+    environment:
+      - 'INFRA=${INFRA_SERVER_HOST}:8030'
+      - 'api_pipeline=http://pipeline.imm.${DOMAIN}:8030'
+      - 'api_biz_blueprint=http://${INFRA_SERVER_HOST}:8003/composer/blueprint'
+      - 'api_load_factory=http://${INFRA_SERVER_HOST}:8003/composer/components'
+      - 'api_load_mart=http://${INFRA_SERVER_HOST}:8002/app/list'
+      - 'api_dict_data=http://admin.imm.${DOMAIN}/api/dict/data/grid'
+      - dbhost=${INFRA_SERVER_HOST}
+      - dbpass=${ENV_MYSQL_PASSWORD}
+      - dbuser=root
+      - token_key=token_dev
+      - NODE_VERSION=8.12.0
+      - YARN_VERSION=1.9.4
+    entrypoint:
+      - docker-entrypoint.sh
+    image: '${REPOSITORY}/cloudos/pipeline-web:RC4.24.0'
+    command:
+      - npm
+      - run
+      - simple
+  sys-config:
+    container_name: sys-config
+    restart: always
+    ports:
+      - '8028:8028/tcp'
+    image: '${REPOSITORY}/cloudtogo/sys-config:4.21'
+  volume:
+    container_name: volume
+    restart: always
+    ports:
+      - '8015:8015/tcp'
+    environment:
+      - MYSQL_HOST=${MYSQL_SERVER}
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${ENV_MYSQL_PASSWORD}
+      - MYSQL_PORT=3306
+      - MYSQL_SCHMEA=service_volume
+      - VOLUME_TYPE=nfs
+    image: '${REPOSITORY}/cloudtogo/volume:4.21'
+  sms:
+    container_name: sms
+    restart: always
+    ports:
+      - '8006:8006/tcp'
+    environment:
+      - sms_yunpian_v2_apikey=51e1a39e195255a592cbed71c021334a
+      - RABBITMQ_USER=cloudtogo
+      - RABBITMQ_PWD=${ENV_MYSQL_PASSWORD}
+      - RABBITMQ_HOST=${INFRA_SERVER_HOST}
+      - MYSQL_HOST=${MYSQL_SERVER}
+      - MYSQL_USER=${ENV_MYSQL_USER}
+      - MYSQL_PASSWORD=${ENV_MYSQL_PASSWORD}
+      - MYSQL_SCHMEA=service_sms
+      - 'sms_yunpian_v2_single_send_url=http://sms.yunpian.com/v2/sms/single_send.json'
+    image: '${REPOSITORY}/cloudtogo/sms:4.21'
+  registry-agent:
+    container_name: registry-agent
+    restart: always
+    ports:
+      - '8021:8021/tcp'
+    network_mode: host
+    environment:
+      - mysql_dbName=service_registry
+      - mysql_host=${MYSQL_SERVER}
+      - mysql_port=${ENV_MYSQL_PORT}
+      - mysql_username=${ENV_MYSQL_USER}
+      - mysql_password=${ENV_MYSQL_PASSWORD}
+    image: '${REPOSITORY}/cloudtogo/registry-agent:4.21'
+  pinyin:
+    container_name: pinyin
+    restart: always
+    ports:
+      - '8013:8013/tcp'
+    image: '${REPOSITORY}/cloudtogo/pinyin:4.21'
+  mail:
+    container_name: mail
+    restart: always
+    ports:
+      - '8007:8007/tcp'
+    environment:
+      - MYSQL_USER=${ENV_MYSQL_USER}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - RABBITMQ_USER=${ENV_RABBITMQ_USER}
+      - MYSQL_HOST=${MYSQL_SERVER}
+      - MYSQL_PASSWORD=${ENV_MYSQL_PASSWORD}
+      - MYSQL_SCHMEA=service_email
+      - MAIL_PORT=80
+      - MAIL_PASSWORD=N0P@$$w0rd
+      - MAIL_NICKNAME=行云创新
+      - MAIL_SPLIT_CHAR=;
+      - RABBITMQ_PWD=${ENV_MYSQL_PASSWORD}
+      - RABBITMQ_HOST=${INFRA_SERVER_HOST}
+    image: '${REPOSITORY}/cloudtogo/mail:RC4.24.0'
+  doc:
+    container_name: doc
+    restart: always
+    ports:
+      - '8016:80/tcp'
+    environment:
+      - REFRESH_INTERVAL=20
+      - 'REPOSITORY_URL=https://github.com/cloudtogo/product-doc.git'
+    image: '${REPOSITORY}/cloudtogo/doc:4.21'
+  crontab:
+    container_name: crontab
+    restart: always
+    ports:
+      - '8012:8012/tcp'
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${ENV_MYSQL_PASSWORD}
+      - MYSQL_PORT=3306
+      - MYSQL_SCHMEA=service_cron
+      - factory_service_name=${INFRA_SERVER_HOST}
+      - MYSQL_HOST=${MYSQL_SERVER}
+    image: '${REPOSITORY}/cloudtogo/crontab:4.21'
+  postgres:
+    container_name: postgres
+    restart: always
+    ports:
+      - '5432:5432/tcp'
+    volumes:
+      - '/var/lib/cloudtogo/postgres:/var/lib/postgresql/data:rprivate'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${ENV_MYSQL_PASSWORD}
+      - POSTGRES_DB=dbche
+    image: '${REPOSITORY}/cloudtogo.cn/third-party/postgres:10-alpine'
+  redis:
+    image: ${LC_REGISTRY}/cloudtogo/redis:4-alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    restart: always
+    command: ["sh","-c","exec redis-server --requirepass \"${ENV_REDIS_PASSWORD}\""]
+    volumes:
+      - /var/lib/cloudtogo/redis:/data
+  logs:
+    container_name: logs
+    restart: always
+    network_mode: host
+    image: '${REPOSITORY}/factory/logs:1.0.12'
+    environment:
+      mongodb: admin:50fb3e88-3991-40d9-9ff3-5a8cf6768363@127.0.0.1:27017/admin
+      USE_FILEBEAT_COLLECT_LOG: "filebeat"
+  ops:
+    container_name: ops
+    restart: always
+    network_mode: host
+    image: '${REPOSITORY}/official/ops:RC4.22.1'
+  influxdb:
+    container_name: alarm-db
+    restart: always
+    ports:
+      - '8086:8086/tcp'
+    volumes:
+      - '/var/lib/cloudtogo/influxdb:/var/lib/influxdb:rprivate'
+    image: '${REPOSITORY}/cloudtogo.cn/third-party/influxdb:latest'
+  webx:
+    container_name: webx
+    restart: always
+    ports:
+      - '6080:6080/tcp'
+    environment:
+      - environment=poc
+      - 'composer_host=${INFRA_SERVER_HOST}:8084'
+      - jwt_secret=${JWT}
+      - 'code_host=${INFRA_SERVER_HOST}:8011'
+    image: '${REPOSITORY}/cloudtogo/webx:20180903_10.40'
+  turtle:
+    container_name: turtle
+    restart: always
+    network_mode: host
+    volumes:
+      - '/var/lib/cloudtogo/turtle:/var/lib/cloudtogo/turtle:rprivate'
+    image: '${REPOSITORY}/cloudtogo.cn/official/turtle:RC4.22.1'
+    command: ["--v=1", "--status-cache-dir=/etc/cloudtogo/turtle/etcd", "--enable-compaction", "--peers", "${INFRA_SERVER_HOST}"]
+  schedule-man:
+    container_name: schedule-man
+    restart: always
+    network_mode: host
+    image: '${REPOSITORY}/cloudtogo.cn/official/schedule_man:RC4.22.1'
+    command: ["--major-query=${INFRA_SERVER_HOST}:16007", "--bl-api=http://${INFRA_SERVER_HOST}:8084/get_blueprint_os"]
+  majorquery:
+    container_name: major-query
+    restart: always
+    network_mode: host
+    volumes:
+      - '/var/lib/cloudtogo/mq:/var/lib/cloudtogo/mq:rprivate'
+    image: '${REPOSITORY}/cloudtogo.cn/official/majorquery:RC4.22.1'
+    command: ["--path-save-component", "/var/lib/cloudtogo/mq:/db"]
+  meta-center:
+    container_name: meta-center
+    restart: always
+    ports:
+      - '16009:16009/tcp'
+    volumes:
+      - '/var/lib/cloudtogo/meta:/var/lib/cloudtogo/meta:rprivate'
+    image: '${REPOSITORY}/cloudtogo.cn/official/meta_center:1.1.0-build-master-20180927071501'
+  webserver:
+    container_name: webserver
+    restart: always
+    ports:
+      - '8800:8800/tcp'
+    environment:
+      - token_key=token
+      - 'USER_DOMAIN=http://${INFRA_SERVER_HOST}:8001'
+      - 'MONGO_ADDR=${INFRA_SERVER_HOST}:27017'
+      - 'REDIS_ADDR=${INFRA_SERVER_HOST}:6379'
+      - JWT=${JWT}
+    network_mode: host
+    image: '${REPOSITORY}/cloudtogo/webserver:v3.3'
+  mongodb:
+    image: ${LC_REGISTRY}/cloudos/mongo:3.6.17
+    container_name: mongo
+    ports:
+      - 27017:27017
+    restart: always
+    volumes:
+      - /var/lib/cloudtogo/mongodb:/data/db
+    command: ["--auth"]

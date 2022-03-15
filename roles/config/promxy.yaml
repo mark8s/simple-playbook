@@ -1,0 +1,111 @@
+filter:
+  container:
+    net:
+      - ens
+      - sth
+    disk_io:
+      - sd
+      - /dev/sd
+  node:
+    net:
+      - ens
+      - eth
+    disk_io:
+      - sd
+      - /dev/sd
+device:
+  container:
+    cpu: xx
+    mem: xx
+    disk: container_fs_usage_bytes{name !~ '^k8s_POD.*', namespace = '{{.namespace}}', pod = '{{.podName}}'}
+    net: container_network_transmit_bytes_total{ name =~ '^k8s_POD.*', namespace = '{{.namespace}}', pod = '{{.podName}}'}
+    disk_io: container_fs_reads_bytes_total{name !~ '^k8s_POD.*', namespace = '{{.namespace}}', pod = '{{.podName}}'}
+  node:
+    cpu: xx
+    mem: xx
+    disk: node_filesystem_size_bytes{instance = '{{.host}}'}
+    net: node_network_receive_bytes_total{instance = '{{.host}}'}
+    disk_io: node_disk_read_bytes_total{instance = '{{.host}}'}
+rule:
+  container:
+    #pod: min_over_time(sum by (namespace, name, prometheus_replica) (kube_pod_status_phase{namespace = '{{.namespace}}', pod =~ '^{{.svcName}}.*', phase =~ 'Pending|Unknown|Failed'} == 1)[300s:])
+    pod: min_over_time(sum by (namespace, name, prometheus_replica,pod) (kube_pod_status_ready{condition!='true', pod =~ '^{{.svcName}}.*', namespace='{{.namespace}}'} == 1)[5s:])
+    # 容器cpu %
+    cpu: sum(rate(container_cpu_usage_seconds_total{cpu = 'total', name !~ '^k8s_POD.*', namespace = '{{.namespace}}', pod=~ '^{{.svcName}}.*'}[5m])) by (namespace, prometheus_replica,name) * 100 > {{.threshold}}
+    # 容器mem
+    mem: sum(container_memory_working_set_bytes{container != '', name !~ '^k8s_POD.*',  pod=~ '^{{.svcName}}.*', namespace='{{.namespace}}'})by(namespace, pod,prometheus_replica ) > {{.threshold}}*1024*1024
+    # 容器磁盘
+    disk: sum(container_fs_usage_bytes{name !~ '^k8s_POD.*', pod =~ '^{{.svcName}}.*', namespace='{{.namespace}}'}) BY (pod, namespace, prometheus_replica) > {{.threshold}} * 1024
+    # 容器网络接收
+    net_recv: sum(rate(container_network_receive_bytes_total{name =~ '^k8s_POD.*', pod =~ '^{{.svcName}}.*', namespace = '{{.namespace}}' }[5m])) BY (namespace, pod,prometheus_replica) > {{.threshold}} * 1024
+    # 容器网络发送
+    net_send: sum(rate(container_network_transmit_bytes_total{name =~ '^k8s_POD.*', pod =~ '^{{.svcName}}.*', namespace = '{{.namespace}}'}[5m])) BY (namespace, pod,prometheus_replica) > {{.threshold}} * 1024
+    # 容器磁盘读
+    disk_read: sum(rate(container_fs_reads_bytes_total{container = '', name !~ '^k8s_POD.*', namespace = '{{.namespace}}', pod =~ '^{{.svcName}}.*', device = '{{.device}}'}[{{.duration}}s])) BY (namespace,name, prometheus_replica) > {{.threshold}} * 1024
+    # 容器磁盘写
+    disk_write: sum(rate(container_fs_writes_bytes_total{container = '', name !~ '^k8s_POD.*', namespace = '{{.namespace}}', pod =~ '^{{.svcName}}.*', device = '{{.device}}'}[{{.duration}}s])) BY (namespace,name, prometheus_replica) > {{.threshold}} * 1024
+  node:
+    # 节点cpu
+    cpu: 100 - (avg by (instance,prometheus_replica) (rate(node_cpu_seconds_total{mode = 'idle',instance = '{{.host}}'}[{{.duration}}s])) * 100) > {{.threshold}}
+    # 节点mem M
+    mem: node_memory_MemTotal_bytes{instance = '{{.host}}'} > {{.threshold}} * 1024 * 1024
+    # 节点磁盘使用 %
+    disk: (node_filesystem_avail_bytes{device = '{{.device}}',instance = '{{.host}}'}/node_filesystem_size_bytes{device = '{{.device}}', instance = '{{.host}}'}) * 100 > {{.threshold}}
+    # 节点网络接收 kb/s
+    net_recv: sum(rate(node_network_receive_bytes_total{device = '{{.device}}', instance = '{{.host}}'}[{{.duration}}s])) by (instance, prometheus_replica) > {{.threshold}} * 1024
+    # 节点网络发送 kb/s
+    net_send: sum(rate(node_network_transmit_bytes_total{device = '{{.device}}',instance = '{{.host}}'}[{{.duration}}s])) by (instance, prometheus_replica)   > {{.threshold}} * 1024
+    # 节点磁盘读 kb/s
+    disk_read: sum(rate(node_disk_read_bytes_total{device = '{{.device}}',instance = '{{.host}}'}[{{.duration}}s])) by (instance, prometheus_replica)  > {{.threshold}} * 1024
+    # 节点磁盘写 kb/s
+    disk_write: sum(rate(node_disk_written_bytes_total{device = '{{.device}}',instance = '{{.host}}'}[{{.duration}}s])) by (instance, prometheus_replica)  > {{.threshold}} * 1024
+monitor:
+  container:
+    # 容器cpu
+    cpu:
+      - sum(rate(container_cpu_usage_seconds_total{cpu = 'total', name !~ '^k8s_POD.*', namespace = '{{.namespace}}', pod = '{{.podName}}'}[5m])) by (namespace, prometheus_replica,pod,name) * 100
+    # 容器mem
+    mem:
+      #- sum(container_memory_working_set_bytes{container != '', pod != '', namespace='{{.namespace}}'}) by (namespace, pod,prometheus_replica)
+      - sum(container_memory_working_set_bytes{container != '', name !~ '^k8s_POD.*', pod = '{{.podName}}', namespace='{{.namespace}}'}) by (namespace, pod,prometheus_replica)
+    # 容器磁盘
+    disk:
+      - sum(container_fs_usage_bytes{name !~ '^k8s_POD.*', pod = '{{.podName}}', namespace='{{.namespace}}'}) BY (pod, namespace,prometheus_replica,name)
+    net:
+      # 容器网络接收
+      #- sum(rate(container_network_receive_bytes_total{name =~ '^k8s_POD.*', pod != '', namespace = '{{.namespace}}'}[{{.duration}}s])) BY (namespace, pod, prometheus_replica)
+      - sum(rate(container_network_receive_bytes_total{name =~ '^k8s_POD.*', pod = '{{.podName}}', namespace = '{{.namespace}}'}[5m])) BY (namespace, pod, prometheus_replica,name)
+      # 容器网络发送
+      #- sum(rate(container_network_transmit_bytes_total{name =~ '^k8s_POD.*', pod != '', namespace = '{{.namespace}}'}[{{.duration}}s])) BY (namespace, pod,prometheus_replica)
+      - sum(rate(container_network_transmit_bytes_total{name =~ '^k8s_POD.*', pod = '{{.podName}}', namespace = '{{.namespace}}'}[5m])) BY (namespace, pod,prometheus_replica)
+    disk_io:
+      # read
+      - sum(rate(container_fs_reads_bytes_total{container = '', name !~ '^k8s_POD.*', pod = '{{.podName}}', namespace = '{{.namespace}}'}[{{.duration}}s])) by (namespace, pod,prometheus_replica)
+      # write
+      - sum(rate(container_fs_writes_bytes_total{container = '', name !~ '^k8s_POD.*',  pod = '{{.podName}}', namespace = '{{.namespace}}'}[{{.duration}}s])) by (namespace, pod,prometheus_replica)
+  node:
+    cpu:
+      # kernel
+      - avg by(instance,prometheus_replica) (rate(node_cpu_seconds_total{mode = 'system', instance = '{{.host}}'}[1s])) * 100
+      # user
+      - avg by(instance,prometheus_replica) (rate(node_cpu_seconds_total{mode = 'user', instance = '{{.host}}'}[1s])) * 100
+    mem:
+      # total
+      - node_memory_MemTotal_bytes{instance = '{{.host}}'}
+      # available
+      - node_memory_MemAvailable_bytes{instance = '{{.host}}'}
+    disk:
+      # total
+      - sum(node_filesystem_size_bytes{device !='', instance = '{{.host}}'}) by (instance, prometheus_replica)
+      # available
+      - sum(node_filesystem_avail_bytes{device != '', instance = '{{.host}}'}) by (instance, prometheus_replica)
+    disk_io:
+      # read
+      - sum(rate(node_disk_read_bytes_total{device = '{{.device}}', instance = '{{.host}}'}[{{.duration}}s])) by (instance, prometheus_replica)
+      # write
+      - sum(rate(node_disk_written_bytes_total{device = '{{.device}}', instance = '{{.host}}'}[{{.duration}}s])) by (instance, prometheus_replica)
+    net:
+      # recv
+      - sum(rate(node_network_receive_bytes_total{device = '{{.device}}', instance = '{{.host}}'}[{{.duration}}s])) by (instance, prometheus_replica)
+      # send
+      - sum(rate(node_network_transmit_bytes_total{device = '{{.device}}', instance = '{{.host}}'}[{{.duration}}s])) by (instance, prometheus_replica)
