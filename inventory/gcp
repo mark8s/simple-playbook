@@ -42,7 +42,8 @@ bizbd_install_path=bizdb.pack.res
 bizbd_conf_dir={{ playbook_dir }}/bizdb/config
 bizbd_binary_dir=/tmp
 
-
+# common
+common_file_dir=/tmp
 
 
 

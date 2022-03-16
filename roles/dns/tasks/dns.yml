@@ -32,6 +32,11 @@
     src: "{{ dns_binary_dir }}/bind_conf.tar"
     dest: "{{ installation_workspace }}/{{ dns_install_path }}/bind_conf.tar"
 
+- name: Set mongodb
+  copy:
+    src: "{{ common_file_dir }}/mongodb"
+    dest: "{{ installation_workspace }}/{{ dns_install_path }}/mongodb"
+
 - name: Set Docker Compose
   copy:
     src: "{{ dns_conf_dir }}/docker-compose.yml"

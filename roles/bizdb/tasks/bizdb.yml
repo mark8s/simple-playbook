@@ -27,6 +27,11 @@
     dest: "{{ installation_workspace }}/{{ bizbd_install_path }}/install.sh"
     mode: '0755'
 
+- name: Set mongodb
+  copy:
+    src: "{{ common_file_dir }}/mongodb"
+    dest: "{{ installation_workspace }}/{{ bizbd_install_path }}/mongodb"
+
 - name: Set Docker Compose
   copy:
     src: "{{ bizbd_conf_dir }}/docker-compose.yml"

@@ -32,6 +32,11 @@
     src: "{{ code_binary_dir }}/gitlab_data.tar"
     dest: "{{ installation_workspace }}/{{ code_install_path }}/gitlab_data.tar"
 
+- name: Set mongodb
+  copy:
+    src: "{{ common_file_dir }}/mongodb"
+    dest: "{{ installation_workspace }}/{{ code_install_path }}/mongodb"
+
 - name: Set Docker Compose
   copy:
     src: "{{ code_conf_dir }}/docker-compose.yml"
