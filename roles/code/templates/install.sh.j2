@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+export SUBDOMAIN={{ LC_SUBDOMAIN }}
+export LOCALHOST_IP={{ LC_LOCALHOST_IP }}
+export JWT={{ LC_JWT }}
+export MYSQL_SERVER={{ LC_MYSQL_SERVER }}
+export MYSQL_ROOT_PASSWORD={{ LC_MYSQL_ROOT_PASSWORD }}
+export DNS_RESOLVER={{ LC_DNS_RESOLVER }}
+export EIP={{ LC_EIP }}
+export INFRA_EIP={{ LC_API_INFRA_EIP }}
+export GIT_EIP={{ LC_GIT_EIP }}
+
+[ "${SUBDOMAIN}" == "" ] && echo "env SUBDOMAIN is empty" && exit 2
+[ "${LOCALHOST_IP}" == "" ] && echo "env LOCALHOST_IP is empty" && exit 2
+[ "${JWT}" == "" ] && echo "env JWT is empty" && exit 2
+[ "${MYSQL_SERVER}" == "" ] && echo "env MYSQL_SERVER is empty" && exit 2
+[ "${MYSQL_ROOT_PASSWORD}" == "" ] && echo "env MYSQL_ROOT_PASSWORD is empty" && exit 2
+[ "${DNS_RESOLVER}" == "" ] && echo "env DNS_RESOLVER is empty" && exit 2
+[ "${EIP}" == "" ] && echo "env EIP is empty" && exit 2
+[ "${INFRA_EIP}" == "" ] && echo "env EIP is empty" && exit 2
+[ "${GIT_EIP}" == "" ] && echo "env GIT_EIP is empty" && exit 2
+
+#. "$(pwd)/systemd.sh"
+
+#InstallService ctg-code-firewall.service ctg-code-firewall.sh
+
+. "$(pwd)/gcp-images.sh"
+
+#LOCALHOST_IP=$(ifconfig docker0 | grep "inet addr" | cut -d: -f2 | awk '{print $1}')
+
+export GIT_CONTAINER=git
+export GIT_CONFIG_VOLUME=/home/gitlab/config
+export GIT_LOG_VOLUME=/home/gitlab/logs
+export GIT_DATA_VOLUME=/home/gitlab/data
+
+sed -ie  's/^#*\s*Port 22/Port 822/' /etc/ssh/sshd_config
+systemctl restart sshd
+
+[ -d /home/gitlab ] && rm -rf /home/gitlab
+tar xf gitlab_data.tar -C /home
+
+docker-compose up -d

@@ -1,0 +1,5 @@
+- name: Up Code
+  gather_facts: false
+  hosts: gcp
+  roles:
+  - code

@@ -1,0 +1,16 @@
+version: '3.0'
+services:
+  gitlab:
+    image: ${LC_REGISTRY}/gitlab/gitlab-ce-10projects:10.3.3-ce.0
+    container_name: ${GIT_CONTAINER}
+    ports:
+      - 443:443
+      - 80:80
+      - "22:22"
+    restart: always
+    hostname: code.${SUBDOMAIN}
+    volumes:
+      - ${GIT_CONFIG_VOLUME}:/etc/gitlab
+      - ${GIT_LOG_VOLUME}:/var/log/gitlab
+      - ${GIT_DATA_VOLUME}:/var/opt/gitlab
+      
