@@ -36,3 +36,16 @@ code_binary_dir=/tmp
 dns_install_path=dns.pack.res
 dns_conf_dir={{ playbook_dir }}/dns/config
 dns_binary_dir=/tmp
+
+# bizbd
+bizbd_install_path=bizdb.pack.res
+bizbd_conf_dir={{ playbook_dir }}/bizdb/config
+bizbd_binary_dir=/tmp
+
+
+
+
+
+
+
+

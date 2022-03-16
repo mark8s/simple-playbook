@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+export SUBDOMAIN={{ LC_SUBDOMAIN }}
+export LOCALHOST_IP={{ LC_LOCALHOST_IP }}
+export JWT={{ LC_JWT }}
+export MYSQL_SERVER={{ LC_MYSQL_SERVER }}
+export MYSQL_ROOT_PASSWORD={{ LC_MYSQL_ROOT_PASSWORD }}
+export DNS_RESOLVER={{ LC_DNS_RESOLVER }}
+export ENV_RABBITMQ_USER=cloudtogo
+export ENV_RABBITMQ_PASSWORD={{ LC_MYSQL_ROOT_PASSWORD }}
+
+[ "${SUBDOMAIN}" == "" ] && echo "env SUBDOMAIN is empty" && exit 2
+[ "${LOCALHOST_IP}" == "" ] && echo "env LOCALHOST_IP is empty" && exit 2
+[ "${JWT}" == "" ] && echo "env JWT is empty" && exit 2
+[ "${MYSQL_SERVER}" == "" ] && echo "env MYSQL_SERVER is empty" && exit 2
+[ "${MYSQL_ROOT_PASSWORD}" == "" ] && echo "env MYSQL_ROOT_PASSWORD is empty" && exit 2
+[ "${DNS_RESOLVER}" == "" ] && echo "env DNS_RESOLVER is empty" && exit 2
+
+. "$(pwd)/gcp-images.sh"
+
+export DB_VOLUME=/var/lib/cloudtogo/mysql
+export DB_CONTAINER=biz-db
+export DB_IMAGE=registry.infra.cloudtogo.cn/mysql
+export DB_IMAGE_VERSION=latest
+export DB_IMAGE_PACKAGE=mysql.tar
+
+[ -d ${DB_VOLUME} ] && rm -rf ${DB_VOLUME}/*
+[ ! -d ${DB_VOLUME} ] && mkdir -p ${DB_VOLUME}
+
+docker-compose up -d
+
