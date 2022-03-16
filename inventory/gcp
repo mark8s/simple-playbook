@@ -44,6 +44,7 @@ bizbd_binary_dir=/tmp
 
 # common
 common_file_dir=/tmp
+common_file_path={{ playbook_dir }}/common
 
 
 

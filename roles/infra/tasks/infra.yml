@@ -1,14 +1,19 @@
-- name: test
-  shell: |
-   echo "playbook_dir" {{ playbook_dir }}
-  register: say_hi
-
-- debug: var=say_hi.stdout
-
 - name: Assure workspace existence
   file:
     path: "{{ installation_workspace }}/{{ infra_install_path }}"
     state: directory
+
+- name: Set  common gcp-images scripts
+  template:
+    src: "{{ common_file_path }}/gcp-images.sh"
+    dest: "{{ installation_workspace }}/{{ infra_install_path }}/gcp-images.sh"
+    mode: '0755'
+
+- name: Set  common install_package scripts
+  template:
+    src: "{{ common_file_path }}/install_package.sh"
+    dest: "{{ installation_workspace }}/{{ infra_install_path }}/install_package.sh"
+    mode: '0755'
 
 - name: Set env scripts
   template:

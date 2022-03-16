@@ -3,16 +3,16 @@
     path: "{{ installation_workspace }}/{{ bizbd_install_path }}"
     state: directory
 
-- name: Set install_package scripts
+- name: Set  common gcp-images scripts
   template:
-    src: install_package.sh.j2
-    dest: "{{ installation_workspace }}/{{ bizbd_install_path }}/install_package.sh"
+    src: "{{ common_file_path }}/gcp-images.sh"
+    dest: "{{ installation_workspace }}/{{ bizbd_install_path }}/gcp-images.sh"
     mode: '0755'
 
-- name: Set  gcp-images scripts
+- name: Set  common install_package scripts
   template:
-    src: gcp-images.sh.j2
-    dest: "{{ installation_workspace }}/{{ bizbd_install_path }}/gcp-images.sh"
+    src: "{{ common_file_path }}/install_package.sh"
+    dest: "{{ installation_workspace }}/{{ bizbd_install_path }}/install_package.sh"
     mode: '0755'
 
 - name: Set manual scripts
