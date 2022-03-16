@@ -32,3 +32,7 @@ code_install_path=code.pack.res
 code_conf_dir={{ playbook_dir }}/code/config
 code_binary_dir=/tmp
 
+# dns
+dns_install_path=dns.pack.res
+dns_conf_dir={{ playbook_dir }}/dns/config
+dns_binary_dir=/tmp

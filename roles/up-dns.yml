@@ -1,0 +1,5 @@
+- name: Up Dns
+  gather_facts: false
+  hosts: gcp
+  roles:
+  - dns

@@ -1,0 +1,2 @@
+- name: Install Dns
+  include_tasks: dns.yml

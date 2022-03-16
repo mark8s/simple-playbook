@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+export SUBDOMAIN={{ LC_SUBDOMAIN }}
+export LOCALHOST_IP={{ LC_LOCALHOST_IP }}
+export JWT={{ LC_JWT }}
+export MYSQL_SERVER={{ LC_MYSQL_SERVER }}
+export MYSQL_ROOT_PASSWORD={{ LC_MYSQL_ROOT_PASSWORD }}
+export DNS_RESOLVER={{ LC_DNS_RESOLVER }}
+export EIP={{ LC_EIP }}
+export INFRA_EIP={{ LC_API_INFRA_EIP }}
+export GIT_EIP={{ LC_GIT_EIP }}
+
+[ "${SUBDOMAIN}" == "" ] && echo "env SUBDOMAIN is empty" && exit 2
+[ "${LOCALHOST_IP}" == "" ] && echo "env LOCALHOST_IP is empty" && exit 2
+[ "${JWT}" == "" ] && echo "env JWT is empty" && exit 2
+[ "${MYSQL_SERVER}" == "" ] && echo "env MYSQL_SERVER is empty" && exit 2
+[ "${MYSQL_ROOT_PASSWORD}" == "" ] && echo "env MYSQL_ROOT_PASSWORD is empty" && exit 2
+[ "${DNS_RESOLVER}" == "" ] && echo "env DNS_RESOLVER is empty" && exit 2
+[ "${EIP}" == "" ] && echo "env EIP is empty" && exit 2
+[ "${INFRA_EIP}" == "" ] && echo "env EIP is empty" && exit 2
+[ "${GIT_EIP}" == "" ] && echo "env GIT_EIP is empty" && exit 2
+
+. "$(pwd)/gcp-images.sh"
+export INSTALL_DIR=/var/lib/cloudtogo/
+export MONGODB_VOLUME=/var/lib/cloudtogo/mongodb
+export MONGODB_CONTAINER=mongo
+
+export DNSA_VOLUME=/etc/bind
+export DNSA_CONTAINER=dnsa
+export BIND_CONF=/etc/bind
+
+[ ! -d ${BIND_CONF} ] && mkdir -p ${BIND_CONF}
+rm -rf ${BIND_CONF}/*
+tar xf bind_conf.tar -C ${BIND_CONF}
+
+[ -d "${MONGODB_VOLUME}" ] && rm -rf "${INSTALL_DIR}/*"
+
+docker-compose up -d
+
+sleep 10
+
+tee dnsinit > /dev/null <<-EOF
+server 127.0.0.1
+zone ${SUBDOMAIN}
+update add mart.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+update add factory.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+update add ide.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+update add sso.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+update add admin.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+update add composer.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+update add epay.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+update add webx.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+update add code.${SUBDOMAIN} 3600 A ${GIT_EIP}
+update add fe-support.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+update add pipeline.${SUBDOMAIN} 3600 A ${INFRA_EIP}
+send
+EOF
+
+docker cp dnsinit ${DNSA_CONTAINER}:/
+docker exec ${DNSA_CONTAINER} nsupdate /dnsinit

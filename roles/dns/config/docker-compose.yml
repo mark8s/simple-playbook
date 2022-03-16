@@ -1,0 +1,19 @@
+version: '3.0'
+services:
+  MongoDB:
+    image: ${LC_REGISTRY}/cloudos/mongo:3.6.17
+    container_name: ${MONGODB_CONTAINER}
+    ports:
+      - 27017:27017
+    restart: always
+    volumes:
+      - ${MONGODB_VOLUME}:/data/db
+  dnsa:
+    image: ${LC_REGISTRY}/official/dnsa:RC4.22.1
+    container_name: ${DNSA_CONTAINER}
+    network_mode: host
+    restart: always
+    volumes:
+      - ${DNSA_VOLUME}:/etc/bind
+    command: ["-zones=${SUBDOMAIN},${EIP}|svc.cluster.local,${LOCALHOST_IP}"]
+     
