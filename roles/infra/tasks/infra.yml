@@ -21,18 +21,6 @@
     dest: "{{ installation_workspace }}/{{ infra_install_path }}/env.sh"
     mode: '0755'
 
-- name: Set install_package scripts
-  template:
-    src: install_package.sh.j2
-    dest: "{{ installation_workspace }}/{{ infra_install_path }}/install_package.sh"
-    mode: '0755'
-
-- name: Set  gcp-images scripts
-  template:
-    src: gcp-images.sh.j2
-    dest: "{{ installation_workspace }}/{{ infra_install_path }}/gcp-images.sh"
-    mode: '0755'
-
 - name: Set manual scripts
   template:
     src: manual.sh.j2

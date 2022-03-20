@@ -1,5 +1,5 @@
 - name: Up Infra
   gather_facts: false
-  hosts: gcp
+  hosts: infra
   roles:
   - infra

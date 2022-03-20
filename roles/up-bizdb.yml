@@ -1,5 +1,5 @@
 - name: Up Dizdb
   gather_facts: false
-  hosts: gcp
+  hosts: bizdb
   roles:
     - bizdb

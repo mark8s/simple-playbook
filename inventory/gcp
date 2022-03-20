@@ -1,9 +1,21 @@
 # Host in Global Control Plane
-[gcp]
+#[gcp]
 #dns.gcp    ansible_host=10.10.13.182 public_ip=10.10.13.182 ansible_user=root ansible_password=0
 #gitlab.gcp ansible_host=10.10.13.181 public_ip=10.10.13.181 ansible_user=root ansible_password=0
 #main.gcp   ansible_host=10.10.13.180 public_ip=10.10.13.180 ansible_user=root ansible_password=0
-127.0.0.1 ansible_connection=local
+#127.0.0.1 ansible_connection=local
+
+[infra]
+infra.gcp ansible_host=10.10.11.35 public_ip=10.10.11.35 ansible_user=root ansible_password=password
+
+[code]
+code.gcp ansible_host=10.10.11.36 public_ip=10.10.11.36 ansible_user=root ansible_password=password ansible_ssh_port=822
+
+[bizdb]
+bizdb.gcp ansible_host=10.10.11.35 public_ip=10.10.11.35 ansible_user=root ansible_password=password
+
+[dns]
+dns.gcp ansible_host=10.10.11.37 public_ip=10.10.11.37 ansible_user=root ansible_password=password
 
 [all:vars]
 LC_EIP=10.10.11.35
