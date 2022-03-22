@@ -1,27 +1,33 @@
 ### simple-playbook
 
-#### How To Use
-##### install infra
+##### install gcp （include infra、code、dns、bizdb）
+First,you need copy gitlab_data.tar 、 bind_conf.tar、mongodb to /roles/lib dir
+
+##### install all
+```shell
+ansible-playbook -i inventory/gcp deploy-gcp.yml
+```
+
+##### install infra alone
 ```shell
 ansible-playbook -i inventory/gcp role/up-infra.yml
 ```
 
-##### install code
-First,you need copy gitlab_data.tar to /tmp dir, then execute next command.
+##### install code alone
 ```shell
 ansible-playbook -i inventory/gcp role/up-code.yml
 ```
 
-##### install dns
-First,you need copy bind_conf.tar to /tmp dir, then execute next command.
+##### install dns alone
 ```shell
 ansible-playbook -i inventory/gcp role/up-dns.yml
 ```
 
-##### install bizdb
+##### install bizdb alone
 
 ```shell
 ansible-playbook -i /inventory/gcp role/up-bizdb.yml
 ```
+
 
 

@@ -1,0 +1,4 @@
+- import_playbook: roles/up-dns.yml
+- import_playbook: roles/up-code.yml
+- import_playbook: roles/up-infra.yml
+- import_playbook: roles/up-bizdb.yml

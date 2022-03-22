@@ -42,20 +42,20 @@ local_image_conf_dir={{ playbook_dir }}/image
 # code
 code_install_path=code.pack.res
 code_conf_dir={{ playbook_dir }}/code/config
-code_binary_dir=/tmp
+code_binary_dir={{ playbook_dir }}/lib
 
 # dns
 dns_install_path=dns.pack.res
 dns_conf_dir={{ playbook_dir }}/dns/config
-dns_binary_dir=/tmp
+dns_binary_dir={{ playbook_dir }}/lib
 
 # bizbd
 bizbd_install_path=bizdb.pack.res
 bizbd_conf_dir={{ playbook_dir }}/bizdb/config
-bizbd_binary_dir=/tmp
+bizbd_binary_dir={{ playbook_dir }}/lib
 
 # common
-common_file_dir=/tmp
+common_file_dir={{ playbook_dir }}/lib
 common_file_path={{ playbook_dir }}/common
 
 
