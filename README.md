@@ -1,4 +1,5 @@
 ### simple-playbook
+一个简单的ansible实践project。
 
 #### install gcp （include infra、code、dns、bizdb）
 First,you need copy gitlab_data.tar 、 bind_conf.tar、mongodb to /roles/lib dir
